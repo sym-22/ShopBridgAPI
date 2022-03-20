@@ -35,7 +35,19 @@ namespace DataAccess.Classes
             {
                 using (ItemContext context = _dbContextFactory.CreateDbContext())
                 {
-                    await context.Items.AddAsync(item);
+                    Item existingItem =  context.Items.FirstOrDefault(i => i.ItemName == item.ItemName);
+
+                    //If item with given name already exists then increase quantity by 1
+                    if (existingItem is not null)
+                    {
+                        existingItem.AvailableQuantity += 1;
+                        item = existingItem;
+                    }
+                    else
+                    {
+                        await context.Items.AddAsync(item);
+                    }
+
                     await context.SaveChangesAsync();
                     return item;
                 }
@@ -57,7 +69,18 @@ namespace DataAccess.Classes
             {
                 using (ItemContext context = _dbContextFactory.CreateDbContext())
                 {
-                    context.Items.Remove(context.Items.Find(itemId));
+                    Item existingItem =  context.Items.Find(itemId);
+
+                    //If item exists with quantity > 1 then decrease quantity 
+                    if (existingItem is not null && existingItem.AvailableQuantity > 1)
+                    {
+                        existingItem.AvailableQuantity -= 1;
+                    }
+                    
+                    else
+                    {
+                        context.Items.Remove(existingItem);
+                    }
                     await context.SaveChangesAsync();
                 }
             }

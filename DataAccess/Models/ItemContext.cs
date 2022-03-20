@@ -19,18 +19,21 @@ namespace DataAccess.Models
 
         }
 
-        ///// <summary>
-        /////     Parameterless constructor created for nunit test
-        ///// </summary>
-        //public ItemContext()
-        //{
-
-        //}
-
         /// <summary>
         ///     Items DB set
         /// </summary>
-        public virtual DbSet<Item> Items { get; set; } //Setting as virtual so that mock can override
+        public virtual DbSet<Item> Items { get; set; } 
+
+        /// <summary>
+        ///     Categories Db set
+        /// </summary>
+        public virtual DbSet<Category> Categories { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Item>()
+                .Property(i => i.AvailableQuantity)
+                .HasDefaultValue(1);
+        }
 
     }
 }

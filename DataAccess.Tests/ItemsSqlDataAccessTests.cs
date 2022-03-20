@@ -35,46 +35,43 @@ namespace DataAccess.Tests
             _mockInMemoryConfiguration = new ConfigurationBuilder().AddInMemoryCollection(globalConfig).Build();
         }
 
-        [Test]
-        public async Task AddItemTest_Success()
-        {
-            var mockItemSet = new Mock<DbSet<Item>>();
+        //[Test]
+        //public async Task AddItemTest_NewItem_Success()
+        //{
+        //    var mockItemSet = new Mock<DbSet<Item>>();
 
-            _mockDbContextFactory.Setup(x => x.CreateDbContext()).Returns(_mockItemContext.Object);
-            _mockItemContext.Setup(x => x.Items).Returns(mockItemSet.Object);
+        //    _mockDbContextFactory.Setup(x => x.CreateDbContext()).Returns(_mockItemContext.Object);
+        //    _mockItemContext.Setup(x => x.Items).Returns(mockItemSet.Object);
 
-            Item itemToAdd = new Item() { ItemId = 1, ItemName = "added item", ItemDescription = "desc", ItemPrice = 20 };
-            ItemsSqlDataAccess itemsSqlDataAccess = new ItemsSqlDataAccess(_mockDbContextFactory.Object, _mockInMemoryConfiguration);
-            Item addedItem = await itemsSqlDataAccess.AddItemAsync(itemToAdd);
+        //    Item itemToAdd = new Item() { ItemId = 1, ItemName = "added item", ItemDescription = "desc", ItemPrice = 20 };
+        //    ItemsSqlDataAccess itemsSqlDataAccess = new ItemsSqlDataAccess(_mockDbContextFactory.Object, _mockInMemoryConfiguration);
+        //    Item addedItem = await itemsSqlDataAccess.AddItemAsync(itemToAdd);
 
-            mockItemSet.Verify(m => m.AddAsync(It.IsAny<Item>(), It.IsAny<CancellationToken>()), Times.Once());
-            _mockItemContext.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once());
+        //    mockItemSet.Verify(m => m.AddAsync(It.IsAny<Item>(), It.IsAny<CancellationToken>()), Times.Once());
+        //    _mockItemContext.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once());
 
-            Assert.AreEqual(itemToAdd.ItemId, addedItem.ItemId);
-            Assert.AreEqual(itemToAdd.ItemName, addedItem.ItemName);
-            Assert.AreEqual(itemToAdd.ItemDescription, addedItem.ItemDescription);
-            Assert.AreEqual(itemToAdd.ItemPrice, addedItem.ItemPrice);
+        //    Assert.AreEqual(itemToAdd.ItemId, addedItem.ItemId);
+        //    Assert.AreEqual(itemToAdd.ItemName, addedItem.ItemName);
+        //    Assert.AreEqual(itemToAdd.ItemDescription, addedItem.ItemDescription);
+        //    Assert.AreEqual(itemToAdd.ItemPrice, addedItem.ItemPrice);
 
-        }
+        //}
 
         [Test]
         public void AddItemTest_Exception()
         {
             var mockItemSet = new Mock<DbSet<Item>>();
+            var mockCategoriesSet = GetDefaultCategoriesDbSet();
 
             _mockItemContext.Setup(x => x.Items).Returns(mockItemSet.Object);
 
-            _mockDbContextFactory.Setup(x => x.CreateDbContext()).Returns(_mockItemContext.Object);
-
-            _mockItemContext.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                                         .ThrowsAsync(new Exception(message: "Test Exception"));
+            _mockDbContextFactory.Setup(x => x.CreateDbContext()).Throws(new Exception(message: "Test Exception"));
 
             ItemsSqlDataAccess itemsSqlDataAccess = new ItemsSqlDataAccess(_mockDbContextFactory.Object, _mockInMemoryConfiguration);
 
             var exception = Assert.ThrowsAsync<Exception>(async () =>
             {
                 Item addedItem = await itemsSqlDataAccess.AddItemAsync(It.IsAny<Item>());
-
             });
 
             Assert.AreEqual("Test Exception", exception.Message);
@@ -160,13 +157,14 @@ namespace DataAccess.Tests
         }
 
         [Test]
-        public async Task DeleteItemTest_Success()
+        public async Task DeleteItemTest_SingleExists_Success()
         {
 
             Mock<DbSet<Item>> mockItemSet = GetDefaultItemsDbSet();
 
-            _mockDbContextFactory.Setup(x => x.CreateDbContext()).Returns(_mockItemContext.Object);
+
             _mockItemContext.Setup(x => x.Items).Returns(mockItemSet.Object);
+            _mockDbContextFactory.Setup(x => x.CreateDbContext()).Returns(_mockItemContext.Object);
 
 
             ItemsSqlDataAccess itemsSqlDataAccess = new ItemsSqlDataAccess(_mockDbContextFactory.Object, _mockInMemoryConfiguration);
@@ -177,6 +175,27 @@ namespace DataAccess.Tests
 
             mockItemSet.Verify(m => m.Find(It.IsAny<int>()), Times.Once());
             mockItemSet.Verify(m => m.Remove(It.IsAny<Item>()), Times.Once());
+            _mockItemContext.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once());
+
+        }
+
+        [Test]
+        public async Task DeleteItemTest_MultipleExists_Success()
+        {
+
+            Mock<DbSet<Item>> mockItemSet = GetDefaultItemsDbSet();
+
+            Item item1 = new Item { ItemId = 1, ItemName = "test item1", ItemDescription = "desc 1", ItemPrice = 55, AvailableQuantity = 3 };
+            mockItemSet.Setup(m => m.Find(1)).Returns(item1);
+
+            _mockItemContext.Setup(x => x.Items).Returns(mockItemSet.Object);
+            _mockDbContextFactory.Setup(x => x.CreateDbContext()).Returns(_mockItemContext.Object);
+
+            ItemsSqlDataAccess itemsSqlDataAccess = new ItemsSqlDataAccess(_mockDbContextFactory.Object, _mockInMemoryConfiguration);
+            await itemsSqlDataAccess.DeleteItemAsync(1);
+
+            mockItemSet.Verify(m => m.Find(It.IsAny<int>()), Times.Once());
+            mockItemSet.Verify(m => m.Remove(It.IsAny<Item>()), Times.Never());
             _mockItemContext.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once());
 
         }
@@ -224,7 +243,7 @@ namespace DataAccess.Tests
 
         private Mock<DbSet<Item>> GetDefaultItemsDbSet()
         {
-            Item item1 = new Item { ItemId = 1, ItemName = "test item1", ItemDescription = "desc 1", ItemPrice = 55 };
+            Item item1 = new Item { ItemId = 1, ItemName = "test item1", ItemDescription = "desc 1", ItemPrice = 55 , AvailableQuantity =3 };
             Item item2 = new Item { ItemId = 2, ItemName = "test item2", ItemDescription = "desc 2", ItemPrice = 48 };
             Item item3 = new Item { ItemId = 3, ItemName = "test item3", ItemDescription = "desc 3", ItemPrice = 47 };
 
@@ -237,6 +256,23 @@ namespace DataAccess.Tests
             mockItemSet.As<IQueryable<Item>>().Setup(m => m.GetEnumerator()).Returns(itemList.GetEnumerator());
 
             return mockItemSet;
+        }
+
+        private Mock<DbSet<Category>> GetDefaultCategoriesDbSet()
+        {
+            Category apparels = new Category { CategoryId = 1, CategoryName = "apparels" };
+            Category accessories = new Category { CategoryId = 2, CategoryName = "accessories" };
+            Category others = new Category { CategoryId = 3, CategoryName = "others" };
+
+            var categoryList = new List<Category> {apparels, accessories, others}.AsQueryable();
+
+            var mockCategorySet = new Mock<DbSet<Category>>();
+            mockCategorySet.As<IQueryable<Category>>().Setup(m => m.Provider).Returns(categoryList.Provider);
+            mockCategorySet.As<IQueryable<Category>>().Setup(m => m.Expression).Returns(categoryList.Expression);
+            mockCategorySet.As<IQueryable<Category>>().Setup(m => m.ElementType).Returns(categoryList.ElementType);
+            mockCategorySet.As<IQueryable<Category>>().Setup(m => m.GetEnumerator()).Returns(categoryList.GetEnumerator());
+
+            return mockCategorySet;
         }
     }
 }

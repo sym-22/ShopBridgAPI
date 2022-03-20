@@ -36,5 +36,16 @@ namespace DataAccess.Models
         /// </summary>
         [Required(ErrorMessage = "Item price is required")]
         public decimal ItemPrice { get; set; }
+
+        /// <summary>
+        ///     Number of items available
+        /// </summary>
+        public int AvailableQuantity { get; set; }
+
+        /// <summary>
+        ///     categoryId foreign key to category table
+        /// </summary>
+        public int CategoryId { get; set; }
+        public Category Category { get; set; }
     }
 }
