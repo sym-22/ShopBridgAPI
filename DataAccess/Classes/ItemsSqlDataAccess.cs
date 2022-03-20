@@ -1,6 +1,7 @@
 ﻿using DataAccess.Interfaces;
 using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,11 +15,13 @@ namespace DataAccess.Classes
     /// </summary>
     public class ItemsSqlDataAccess : IItemDataAccess
     {
-        private IDbContextFactory<ItemContext> _dbContextFactory;
+        private readonly IDbContextFactory<ItemContext> _dbContextFactory;
+        private readonly IConfiguration _configuration;
 
-        public ItemsSqlDataAccess(IDbContextFactory<ItemContext> dbContextFactory)
+        public ItemsSqlDataAccess(IDbContextFactory<ItemContext> dbContextFactory, IConfiguration configuration)
         {
             _dbContextFactory = dbContextFactory;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -90,13 +93,17 @@ namespace DataAccess.Classes
         ///     Lists all items present in Database
         /// </summary>
         /// <returns>Lit of item objects</returns>
-        public async Task<List<Item>> GetAllItemsAsync()
+        public async Task<List<Item>> GetAllItemsAsync(int pageNumber)
         {
             try
             {
+                int itemsPerPage = _configuration.GetValue<int>("ItemsPerPage");
+                int skip = pageNumber == 0 ? 0 : (pageNumber - 1) * itemsPerPage;
                 using (ItemContext context = _dbContextFactory.CreateDbContext())
                 {
-                    return await context.Items.ToListAsync();
+                    return await context.Items.OrderBy(i => i.ItemName)
+                                              .Skip(skip).Take(itemsPerPage)
+                                              .ToListAsync();
                 }
             }
             catch (Exception)

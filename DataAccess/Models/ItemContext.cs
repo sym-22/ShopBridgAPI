@@ -14,17 +14,18 @@ namespace DataAccess.Models
     /// </summary>
     public class ItemContext : DbContext
     {
-        /// <summary>
-        ///     Parameterless constructor created for nunit test
-        /// </summary>
-        public ItemContext()
+        public ItemContext(DbContextOptions<ItemContext> options) : base(options)
         {
 
         }
-        public ItemContext(DbContextOptions<ItemContext> options) : base(options)
-        {
-                
-        }
+
+        ///// <summary>
+        /////     Parameterless constructor created for nunit test
+        ///// </summary>
+        //public ItemContext()
+        //{
+
+        //}
 
         /// <summary>
         ///     Items DB set

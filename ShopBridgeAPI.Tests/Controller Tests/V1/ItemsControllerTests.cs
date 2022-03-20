@@ -29,7 +29,7 @@ namespace ShopBridgeAPI.Tests
         {
             List<Item> itemList = GetDefaultItems();
 
-            _itemDataAccess.Setup(x => x.GetAllItemsAsync()).Returns(Task.FromResult(itemList));
+            _itemDataAccess.Setup(x => x.GetAllItemsAsync(It.IsAny<int>())).Returns(Task.FromResult(itemList));
 
             ItemsController itemsController = new ItemsController(_itemDataAccess.Object);
             IActionResult actionResult = itemsController.GetAllItemsAsync().Result;
@@ -39,11 +39,26 @@ namespace ShopBridgeAPI.Tests
         }
 
         [Test]
+        public void GetAllItemsTest_BadRequest()
+        {
+            List<Item> itemList = GetDefaultItems();
+
+            _itemDataAccess.Setup(x => x.GetAllItemsAsync(It.IsAny<int>())).Returns(Task.FromResult(itemList));
+
+            ItemsController itemsController = new ItemsController(_itemDataAccess.Object);
+            IActionResult actionResult = itemsController.GetAllItemsAsync(-2).Result;
+            var result = actionResult as ObjectResult;
+
+            Assert.AreEqual(Convert.ToInt32(HttpStatusCode.BadRequest), result.StatusCode);
+            Assert.AreEqual(Constants.INVALID_PAGE_NUMBER_MESSAGE, result.Value);
+        }
+
+        [Test]
         public void GetAllItemsTest_InternalServerError()
         {
             List<Item> itemList = GetDefaultItems();
 
-            _itemDataAccess.Setup(x => x.GetAllItemsAsync()).ThrowsAsync(new Exception(message: "error"));
+            _itemDataAccess.Setup(x => x.GetAllItemsAsync(It.IsAny<int>())).ThrowsAsync(new Exception(message: "error"));
 
             ItemsController itemsController = new ItemsController(_itemDataAccess.Object);
             IActionResult actionResult = itemsController.GetAllItemsAsync().Result;
@@ -109,13 +124,10 @@ namespace ShopBridgeAPI.Tests
         public void EditItemTest_NotFound()
         {
             List<Item> itemList = GetDefaultItems();
-            Item modifiedItem = null;
             Item existingItem = new Item { ItemId = 122, ItemName = "modified", ItemDescription = "desc 1", ItemPrice = 55 };
 
             _itemDataAccess.Setup(x => x.DoesItemExistAsync(existingItem.ItemId))
                                         .Returns(Task.FromResult(itemList.FindIndex(x => x.ItemId == existingItem.ItemId) > -1));
-            _itemDataAccess.Setup(x => x.EditItemAsync(It.IsAny<Item>()))
-                                .Callback((Item item) => modifiedItem = item);
 
             ItemsController itemsController = new ItemsController(_itemDataAccess.Object);
             IActionResult actionResult = itemsController.EditItemAsync(existingItem).Result;

@@ -16,7 +16,7 @@ namespace DataAccess.Interfaces
         ///     Lists all items present in Database
         /// </summary>
         /// <returns>Lit of item objects</returns>
-        public Task<List<Item>> GetAllItemsAsync();
+        public Task<List<Item>> GetAllItemsAsync(int pageNumber);
 
         /// <summary>
         ///     Adds given item to database

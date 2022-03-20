@@ -24,11 +24,13 @@ namespace ShopBridgeAPI.Controllers.V1
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllItemsAsync()
+        public async Task<IActionResult> GetAllItemsAsync(int pageNumber = 0)
         {
             try
             {
-                List<Item> itemList = await _itemDataAccess.GetAllItemsAsync();
+                if (pageNumber < 0)
+                    return BadRequest(Constants.INVALID_PAGE_NUMBER_MESSAGE);
+                List<Item> itemList = await _itemDataAccess.GetAllItemsAsync(pageNumber);
                 return Ok(itemList);
             }
             catch (Exception)
