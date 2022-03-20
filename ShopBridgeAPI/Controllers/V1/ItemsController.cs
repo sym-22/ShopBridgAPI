@@ -24,40 +24,68 @@ namespace ShopBridgeAPI.Controllers.V1
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllItems()
+        public async Task<IActionResult> GetAllItemsAsync()
         {
-            List<Item> itemList = await _itemDataAccess.GetAllItems();
-            return StatusCode(Convert.ToInt32(HttpStatusCode.OK), itemList);
+            try
+            {
+                List<Item> itemList = await _itemDataAccess.GetAllItemsAsync();
+                return Ok(itemList);
+            }
+            catch (Exception)
+            {
+                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), Constants.INTERNAL_SERVER_ERROR_MESSAGE);
+            }
         }
 
         [HttpPost]
         [Route("add")]
-        public async Task<IActionResult> AddItem(Item item)
+        public async Task<IActionResult> AddItemAsync(Item item)
         {
-            Item createdItem = await _itemDataAccess.AddItem(item);
-            return Created(string.Empty, createdItem);
+            try
+            {
+                Item createdItem = await _itemDataAccess.AddItemAsync(item);
+                return Created(string.Empty, createdItem);
+            }
+            catch (Exception)
+            {
+                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), Constants.INTERNAL_SERVER_ERROR_MESSAGE); 
+            }
         }
 
         [HttpPut]
         [Route("edit")]
-        public async Task<IActionResult> EditItem(Item item)
+        public async Task<IActionResult> EditItemAsync(Item item)
         {
-            if (!await _itemDataAccess.DoesItemExist(item.ItemId))
-                return NotFound(string.Format(Constants.ITEM_NOT_EXIST_MESSAGE, item.ItemId));
+            try
+            {
+                if (!await _itemDataAccess.DoesItemExistAsync(item.ItemId))
+                    return NotFound(string.Format(Constants.ITEM_NOT_EXIST_MESSAGE, item.ItemId));
 
-            Item editedItem = await _itemDataAccess.EditItem(item);
-            return Ok(editedItem);
+                Item editedItem = await _itemDataAccess.EditItemAsync(item);
+                return Ok(editedItem);
+            }
+            catch (Exception)
+            { 
+                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), Constants.INTERNAL_SERVER_ERROR_MESSAGE); 
+            }
         }
 
         [HttpDelete]
         [Route("remove")]
-        public async Task<IActionResult> DeleteItem([Required] int itemId)
+        public async Task<IActionResult> DeleteItemAsync([Required] int itemId)
         {
-            if (!await _itemDataAccess.DoesItemExist(itemId))
-                return NotFound(string.Format(Constants.ITEM_NOT_EXIST_MESSAGE, itemId));
+            try
+            {
+                if (!await _itemDataAccess.DoesItemExistAsync(itemId))
+                    return NotFound(string.Format(Constants.ITEM_NOT_EXIST_MESSAGE, itemId));
 
-            await _itemDataAccess.DeleteItem(itemId);
-            return NoContent();
+                await _itemDataAccess.DeleteItemAsync(itemId);
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), Constants.INTERNAL_SERVER_ERROR_MESSAGE);
+            }
         }
     }
 }

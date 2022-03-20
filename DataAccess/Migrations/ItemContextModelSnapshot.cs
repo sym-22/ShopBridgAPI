@@ -4,9 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DataAccess.Migrations
 {
+    [ExcludeFromCodeCoverage]
     [DbContext(typeof(ItemContext))]
     partial class ItemContextModelSnapshot : ModelSnapshot
     {

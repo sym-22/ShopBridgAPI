@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Classes
 {
+    /// <summary>
+    ///     Concrete class containing data repo methods for CRUD operations.
+    /// </summary>
     public class ItemsSqlDataAccess : IItemDataAccess
     {
         private IDbContextFactory<ItemContext> _dbContextFactory;
@@ -17,48 +20,108 @@ namespace DataAccess.Classes
         {
             _dbContextFactory = dbContextFactory;
         }
-        public async Task<Item> AddItem(Item item)
+
+        /// <summary>
+        ///     Adds given item to database
+        /// </summary>
+        /// <param name="item">Item object to be added</param>
+        /// <returns>Added item</returns>
+        public async Task<Item> AddItemAsync(Item item)
         {
-            using (ItemContext context = _dbContextFactory.CreateDbContext())
+            try
             {
-                await context.Items.AddAsync(item);
-                await context .SaveChangesAsync();
-                return item;
+                using (ItemContext context = _dbContextFactory.CreateDbContext())
+                {
+                    await context.Items.AddAsync(item);
+                    await context.SaveChangesAsync();
+                    return item;
+                }
+            }
+            catch (Exception)
+            { 
+                throw;
             }
         }
 
-        public async Task DeleteItem(int itemId)
+        /// <summary>
+        ///     Delete an item with given id
+        /// </summary>
+        /// <param name="itemId">id of item to be deleted</param>
+        /// <returns></returns>
+        public async Task DeleteItemAsync(int itemId)
         {
-            using (ItemContext context = _dbContextFactory.CreateDbContext())
+            try
             {
-                context.Items.Remove(context.Items.Find(itemId));
-                await context.SaveChangesAsync();
+                using (ItemContext context = _dbContextFactory.CreateDbContext())
+                {
+                    context.Items.Remove(context.Items.Find(itemId));
+                    await context.SaveChangesAsync();
+                }
+            }
+            catch (Exception)
+            { 
+                throw;
             }
         }
 
-        public async Task<Item> EditItem(Item item)
+        /// <summary>
+        ///     modify an item
+        /// </summary>
+        /// <param name="item">item object to be modified</param>
+        /// <returns>modified item object</returns>
+        public async Task<Item> EditItemAsync(Item item)
         {
-            using (ItemContext context = _dbContextFactory.CreateDbContext())
+            try
             {
-                context.Items.Update(item);
-                await context.SaveChangesAsync();
-                return item;
+                using (ItemContext context = _dbContextFactory.CreateDbContext())
+                {
+                    context.Items.Update(item);
+                    await context.SaveChangesAsync();
+                    return item;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
-        public async Task<List<Item>> GetAllItems()
+        /// <summary>
+        ///     Lists all items present in Database
+        /// </summary>
+        /// <returns>Lit of item objects</returns>
+        public async Task<List<Item>> GetAllItemsAsync()
         {
-            using (ItemContext context = _dbContextFactory.CreateDbContext())
+            try
             {
-                return await context.Items.ToListAsync();
+                using (ItemContext context = _dbContextFactory.CreateDbContext())
+                {
+                    return await context.Items.ToListAsync();
+                }
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
-        public async Task<bool> DoesItemExist(int itemId)
+        /// <summary>
+        ///     Checks if item with given id exists in database
+        /// </summary>
+        /// <param name="itemId">id of item</param>
+        /// <returns>true if item with given id exists else false</returns>
+        public async Task<bool> DoesItemExistAsync(int itemId)
         {
-            using (ItemContext context = _dbContextFactory.CreateDbContext())
+            try
             {
-                return await context.Items.AnyAsync(i => i.ItemId.Equals(itemId));
+                using (ItemContext context = _dbContextFactory.CreateDbContext())
+                {
+                    return await context.Items.AnyAsync(i => i.ItemId.Equals(itemId));
+                }
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
     }
