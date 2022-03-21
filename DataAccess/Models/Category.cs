@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Models
 {
+    /// <summary>
+    ///     Category class to hold item category info
+    /// </summary>
     public class Category
     {
         /// <summary>

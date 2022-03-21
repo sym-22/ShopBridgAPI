@@ -35,28 +35,6 @@ namespace DataAccess.Tests
             _mockInMemoryConfiguration = new ConfigurationBuilder().AddInMemoryCollection(globalConfig).Build();
         }
 
-        //[Test]
-        //public async Task AddItemTest_NewItem_Success()
-        //{
-        //    var mockItemSet = new Mock<DbSet<Item>>();
-
-        //    _mockDbContextFactory.Setup(x => x.CreateDbContext()).Returns(_mockItemContext.Object);
-        //    _mockItemContext.Setup(x => x.Items).Returns(mockItemSet.Object);
-
-        //    Item itemToAdd = new Item() { ItemId = 1, ItemName = "added item", ItemDescription = "desc", ItemPrice = 20 };
-        //    ItemsSqlDataAccess itemsSqlDataAccess = new ItemsSqlDataAccess(_mockDbContextFactory.Object, _mockInMemoryConfiguration);
-        //    Item addedItem = await itemsSqlDataAccess.AddItemAsync(itemToAdd);
-
-        //    mockItemSet.Verify(m => m.AddAsync(It.IsAny<Item>(), It.IsAny<CancellationToken>()), Times.Once());
-        //    _mockItemContext.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once());
-
-        //    Assert.AreEqual(itemToAdd.ItemId, addedItem.ItemId);
-        //    Assert.AreEqual(itemToAdd.ItemName, addedItem.ItemName);
-        //    Assert.AreEqual(itemToAdd.ItemDescription, addedItem.ItemDescription);
-        //    Assert.AreEqual(itemToAdd.ItemPrice, addedItem.ItemPrice);
-
-        //}
-
         [Test]
         public void AddItemTest_Exception()
         {
@@ -120,21 +98,6 @@ namespace DataAccess.Tests
 
             Assert.AreEqual("Test Exception", exception.Message);
         }
-
-        //[Test]
-        //public async Task GetAllItemsTest_Success()
-        //{
-        //    var mockItemSet = GetDefaultItemsDbSet();
-
-        //    _mockDbContextFactory.Setup(x => x.CreateDbContext()).Returns(_mockItemContext.Object);
-        //    _mockItemContext.Setup(x => x.Items).Returns(mockItemSet.Object);
-
-        //    ItemsSqlDataAccess itemsSqlDataAccess = new ItemsSqlDataAccess(_mockDbContextFactory.Object, _mockInMemoryConfiguration);
-        //    List<Item> items = await itemsSqlDataAccess.GetAllItemsAsync(It.IsAny<int>());
-
-        //    Assert.AreEqual(3, items.Count);
-
-        //}
 
         [Test]
         public void GetAllItemsTest_Exception()
@@ -218,28 +181,6 @@ namespace DataAccess.Tests
             Assert.AreEqual("Test Exception", exception.Message);
         }
 
-        //[Test]
-        //public async Task DoesItemExistsTest_True_Success()
-        //{
-        //    var mockItemSet = GetDefaultItemsDbSet();
-
-        //    //Item item1 = new Item { ItemId = 1, ItemName = "test item1", ItemDescription = "desc 1", ItemPrice = 55 };
-        //    //Item item2 = new Item { ItemId = 2, ItemName = "test item2", ItemDescription = "desc 2", ItemPrice = 48 };
-        //    //Item item3 = new Item { ItemId = 3, ItemName = "test item3", ItemDescription = "desc 3", ItemPrice = 47 };
-
-        //    //var itemList = new List<Item> { item1, item2, item3 };
-        //    //var mockItemSet = itemList.AsQueryable().BuildMockDbSet();
-
-
-        //    _mockDbContextFactory.Setup(x => x.CreateDbContext()).Returns(_mockItemContext.Object);
-        //    _mockItemContext.Setup(x => x.Items).Returns(mockItemSet.Object);
-
-        //    ItemsSqlDataAccess itemsSqlDataAccess = new ItemsSqlDataAccess(_mockDbContextFactory.Object, _mockInMemoryConfiguration);
-        //    bool result = await itemsSqlDataAccess.DoesItemExistAsync(1); //item with id = 1 exists
-
-        //    Assert.IsTrue(result);
-
-        //}
 
         private Mock<DbSet<Item>> GetDefaultItemsDbSet()
         {

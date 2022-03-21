@@ -8,7 +8,6 @@ using ShopBridgeAPI.Controllers.V1;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace ShopBridgeAPI.Tests
