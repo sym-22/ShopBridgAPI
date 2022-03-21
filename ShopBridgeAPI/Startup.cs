@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace ShopBridgeAPI
@@ -36,7 +37,11 @@ namespace ShopBridgeAPI
                 options => options.UseSqlServer(Configuration.GetConnectionString("ItemContextConnectionString"))
                 );
 
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            });
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ShopBridgeAPI", Version = "v1" });
